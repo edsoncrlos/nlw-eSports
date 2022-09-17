@@ -4,7 +4,8 @@ import * as Checkbox from '@radix-ui/react-checkbox';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 
 import { Input } from './Form/Input';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, FormEvent } from 'react';
+import axios from 'axios';
 
 interface Game {
   id: string;
@@ -15,14 +16,41 @@ export function CreateAdModal() {
 
   const [games, setGames] = useState<Game[]>([])
   const [weekDays, setWeekDays] = useState<string[]>([])
+  const [useVoiceChannel, setUseVoiceChannel] = useState(false)
 
   useEffect(() => {
-    fetch('http://localhost:3000/games')
-    .then(response => response.json())
-    .then(data => {
-      setGames(data);
+    axios ('http://localhost:3000/games').then(response => {
+      setGames(response.data);
     })
   }, [])
+
+  function handleCreateAd(event: FormEvent) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target as HTMLFormElement)
+    const data = Object.fromEntries(formData)
+
+    if (!data.name) {
+      return;
+    }
+
+    try {
+      axios.post(`http://localhost:3000/games/${data.game}/ads`, {
+        name: data.name,
+        yearsPlaying: data.yearsPlaying,
+        discord: data.discord,
+        weekDays: weekDays.map(Number),
+        hourStart: data.hourStart,
+        hourEnd: data.hourEnd,
+        useVoiceChannel: useVoiceChannel
+      })
+
+      alert('Anúncio criado com sucesso!')
+    } catch (err) {
+      console.log(err)
+      alert('Erro ao criar o anúncio!')
+    }
+  }
 
   return (
     <Dialog.Portal>
@@ -30,7 +58,7 @@ export function CreateAdModal() {
 
       <Dialog.Content className='fixed bg-[#2A2634] py-8 px-10 text-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg w-[480px] shadow-lg shadow-black/25'>
         <Dialog.Title className='text-3xl font-black'>Publique um anúncio</Dialog.Title>
-          <form  className='mt-8 flex flex-col gap-4'>
+          <form onSubmit={handleCreateAd} className='mt-8 flex flex-col gap-4'>
             <div className='flex flex-col gap-2'>
               <label htmlFor="game" className='font-semibold'>Qual o game?</label>
               <select 
@@ -137,7 +165,17 @@ export function CreateAdModal() {
             </div>
 
             <label className='mt-2 flex items-center gap-2 text-sm hover:cursor-pointer'>
-              <Checkbox.Root className='w-6 h-6 p-1 rounded bg-zinc-900'>
+              <Checkbox.Root 
+                checked={useVoiceChannel}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    setUseVoiceChannel(true);
+                  } else {
+                    setUseVoiceChannel(false);
+                  }
+                }}
+                className='w-6 h-6 p-1 rounded bg-zinc-900'
+              >
                 <Checkbox.Indicator>
                   <Check className="w-4 h-4 text-emerald-400" />
                 </Checkbox.Indicator>

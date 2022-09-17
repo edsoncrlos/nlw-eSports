@@ -9,6 +9,7 @@ import { GameBanner } from './components/GameBanner';
 import './styles/main.css';
 
 import logoImg from './assets/logo-nlw-esports.svg';
+import axios from 'axios';
 
 interface Game {
   id: string;
@@ -23,10 +24,8 @@ function App() {
   const [games, setGames] = useState<Game[]>([])
 
   useEffect(() => {
-    fetch('http://localhost:3000/games')
-    .then(response => response.json())
-    .then(data => {
-      setGames(data);
+    axios('http://localhost:3000/games').then(response => {
+      setGames(response.data);
     })
   }, [])
   return (
