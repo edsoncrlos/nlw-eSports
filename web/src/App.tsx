@@ -1,3 +1,5 @@
+import { api } from './lib/api';
+
 import * as Dialog from '@radix-ui/react-dialog';
 import { useEffect, useState } from 'react';
 
@@ -9,7 +11,6 @@ import { GameBanner } from './components/GameBanner';
 import './styles/main.css';
 
 import logoImg from './assets/logo-nlw-esports.svg';
-import axios from 'axios';
 
 interface Game {
   id: string;
@@ -24,7 +25,7 @@ function App() {
   const [games, setGames] = useState<Game[]>([])
 
   useEffect(() => {
-    axios('http://localhost:3000/games').then(response => {
+    api.get('/games').then(response => {
       setGames(response.data);
     })
   }, [])
