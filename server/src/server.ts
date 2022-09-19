@@ -50,7 +50,7 @@ app.post('/games/:gameId/ads', async (req, res) => {
 })
 
 app.get('/games/:id/ads', async (req, res) => {
-    const gameId = req.params.id;
+    const gameId: string = req.params.id;
 
     const ads = await prisma.ad.findMany({
         select: {
@@ -96,6 +96,7 @@ app.get('/ads/:id/discord', async (req, res) => {
     })
 })
 
-app.listen(3000, () => {
-    console.log('listening on http://localhost:3000')
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => {
+    console.log(`Server Running in port ${PORT}`)
 })
